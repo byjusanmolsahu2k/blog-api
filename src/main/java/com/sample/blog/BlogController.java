@@ -1,10 +1,10 @@
 package com.sample.blog;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class BlogController {
     
-    @Autowired
+    @Autowired//??
     private BlogRepo repo;
 
     @PostMapping("/addBlog")
@@ -33,9 +33,9 @@ public class BlogController {
     }
 
     @GetMapping("/findBlog/{id}")
-    public Optional<Blog> getBlog(@PathVariable String id)
+    public Blog getBlog(@PathVariable String id)
     {
-        return repo.findById(id);
+        return repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Blog not exist with id: " + id));
     }
 
     @DeleteMapping("/deleteBlog/{id}")
@@ -47,13 +47,13 @@ public class BlogController {
 
 
     @PatchMapping("updateBlog/{id}")
-    public Blog updateBlog(@PathVariable String id, @RequestBody Blog blog) {
+    public ResponseEntity<Blog> updateBlog(@PathVariable String id, @RequestBody Blog blog) {
         Blog blogToUpdate=repo.findById(id).orElseThrow(() -> new ResourceNotFoundException("Blog not exist with id: " + id));
         blogToUpdate.setTitle(blog.getTitle());
         blogToUpdate.setImage(blog.getImage());
         blogToUpdate.setBody(blog.getBody());
         repo.save(blogToUpdate);
-        return blogToUpdate;
+        return ResponseEntity.ok(blogToUpdate);
     }
 
 }
